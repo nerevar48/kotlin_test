@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
                         continue
                     }
 
-//                    trie.add(line)
+                    trie.add(line)
                 }
                 remain = list[last]
 
