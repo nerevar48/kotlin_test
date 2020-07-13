@@ -1,0 +1,1 @@
+data class Node<T>(val ch: HashMap<Byte, Node<T>?> = hashMapOf())
