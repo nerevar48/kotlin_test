@@ -1,18 +1,16 @@
 import java.io.File
+import java.nio.ByteBuffer
 import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
 import kotlin.system.measureTimeMillis
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
     var remain = ""
-    var list: List<String>
-    val bufferSize = 1024*1024
-    var buffer: ByteArray
+    val bufferSize = 1024*1024*8
     var length: Int
-    var last: Int
-    var line: String
     var linesCounter: Long = 0
     val trie = Trie<Byte>()
-
 
     val executionTime = measureTimeMillis {
         // lines 8 000 000 000
@@ -20,26 +18,27 @@ fun main(args: Array<String>) {
         reader.use {
             input ->
             while (true) {
-
                 // считывание файла кусками размерами по bufferSize
-                buffer = ByteArray(bufferSize)
+                val buffer = ByteArray(bufferSize)
                 length = input.read(buffer)
                 if (length <= 0)
                     break
 
                 val bufferString = buffer.toString(Charset.defaultCharset())
                 // деление на строки
-                list = bufferString.split('\n')
+                val list = bufferString.split("\n")
+
                 linesCounter += list.size
                 /**
                  *  запоминание последнего элемента, т.к он обрезан при доставании из файла
                  */
-                last = list.lastIndex
+                val last = list.lastIndex
+
                 for (i in 0 until last) {
                     if (list[i] == "" && remain == "") {
                         continue
                     }
-                    line = list[i]
+                    var line = list[i]
                     // приклеиваем остаток из прошлой итерации к первой строке в новой итерации
                     if (remain != "") {
                         line = remain + line
@@ -48,17 +47,15 @@ fun main(args: Array<String>) {
                     // добавляем в дерево
                     trie.add(line)
                 }
+
                 remain = list[last]
 
                 println("lines remain - ${8000000000-linesCounter}")
-//                println("line process remain - ${(8000000000-linesCounter).toDouble() * ((stop - start).toDouble() / list.size) / 1000 }")
-//                println("1kk line process time - ${(stop - start).toDouble()/1000/list.size.toDouble()*1000000}")
 //                println("unique ip - ${trie.size()}")
 
-                // split и прочее генерируют много мусора который плохо очищается самостоятельно
                 System.gc()
             }
-            // последний остаток из файла, очищается т.к содержит окончание файла
+            // последний остаток из файла
             remain = """[^\d\.]""".toRegex().replace(remain.trim(), "")
             if (remain != "") {
                 trie.add(remain, true)
@@ -96,7 +93,7 @@ class Trie<T>(val root: Node<T> =  Node<T>()) {
          *               90
          *              /   \
          *            85    86
-         *            /     / \
+         *            /     /  \
          *           0    -39  -40
          *          /      /\    \
          *         1     83 77   56
