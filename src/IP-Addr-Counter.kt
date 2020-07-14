@@ -51,7 +51,7 @@ suspend fun main(args: Array<String>) {
                 remain = list[last]
 
                 println("lines remain - ${8000000000-linesCounter}")
-                println("unique ip - ${trie.size()}")
+//                println("unique ip - ${trie.size()}")
 
                 System.gc()
             }
