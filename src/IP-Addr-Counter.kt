@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
                 remain = bufferString.substring(currentOffset, bufferString.length)
 
                 println("lines remain - ${8000000000-linesCounter}")
-                println("unique ip - ${getSize(hashSet)}")
+//                println("unique ip - ${getSize(hashSet)}")
                 System.gc()
             }
             // последний остаток из файла
@@ -65,6 +65,10 @@ fun main(args: Array<String>) {
     println("${executionTime/1000} seconds of execute")
 }
 
+/**
+ * добавление в один из хеш сетов контент-хеш массива байтов
+ * разбито на несколько хешей для скорости
+ */
 fun addToHash(arrayToHash: Array<Byte>, hashSet: HashMap<Int, HashSet<Int>>)
 {
     val hash = 31 * (31 * (31 * (31 * 1 + arrayToHash[0].hashCode()) + arrayToHash[1].hashCode()) + arrayToHash[2].hashCode()) + arrayToHash[3].hashCode()
@@ -84,6 +88,9 @@ fun addToHash(arrayToHash: Array<Byte>, hashSet: HashMap<Int, HashSet<Int>>)
     hashSet[hashIndex]!!.add(hash)
 }
 
+/**
+ * превращение строки ip адреса в массив байтов
+ */
 fun fillArrayByte(arrayToTrie: Array<Byte>, line: String)
 {
     var currentOffset1 = 0
@@ -107,6 +114,9 @@ fun fillArrayByte(arrayToTrie: Array<Byte>, line: String)
     arrayToTrie[index] = byte
 }
 
+/**
+ * получение количества уникальных ip
+ */
 fun getSize(hashSet: HashMap<Int, HashSet<Int>>): Int
 {
     var size = 0
