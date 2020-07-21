@@ -1,13 +1,9 @@
 import java.io.File
 import java.nio.charset.Charset
-import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 import kotlin.system.measureTimeMillis
 
 fun main(args: Array<String>) {
 
-//    val counter = IpCounter("./ipList2")
     val counter = IpCounter("./ip_addresses")
     counter.run()
 
@@ -15,11 +11,10 @@ fun main(args: Array<String>) {
     println("${counter.executionTime/1000} seconds of execute")
 }
 
-
 class IpCounter(private val filePath: String)
 {
     var executionTime = 0L
-    var bufferSize = 1024*1024*256
+    var bufferSize = 1024*1024*128
 
     private var remain = ""
     private var length: Int = 0
@@ -30,7 +25,6 @@ class IpCounter(private val filePath: String)
     private var bufferString = ""
     private val array1 = ByteArray((Int.MAX_VALUE/2)+1)
     private val array2 = ByteArray((Int.MAX_VALUE/2)+1)
-
 
     fun run()
     {
@@ -52,7 +46,6 @@ class IpCounter(private val filePath: String)
                     var currentOffset = 0
                     var nextIndex = bufferString.indexOf('\n', currentOffset, true)
                     do {
-
                         line = bufferString.substring(currentOffset, nextIndex)
                         if (remain != "") {
                             line = remain + line
@@ -70,10 +63,8 @@ class IpCounter(private val filePath: String)
                         linesCounter ++
                     } while (nextIndex != -1)
                     remain = bufferString.substring(currentOffset, bufferString.length)
-
-                    println("lines remain - ${8000000000-linesCounter}")
-
                 }
+
                 // последний остаток из файла
                 remain = """[^\d\.]""".toRegex().replace(remain.trim(), "")
                 if (remain != "") {
@@ -82,19 +73,15 @@ class IpCounter(private val filePath: String)
                     addToHash()
                 }
             }
-
             reader.close()
         }
-
     }
 
     /**
-     * добавление в один из хеш сетов контент-хеш массива байтов
-     * разбито на несколько хешей для скорости
+     * отметка в одном из 2х массивов
      */
     private fun addToHash()
     {
-//    val chars: String = arrayToHash[0].toChar().toString() + arrayToHash[1].toChar().toString() + arrayToHash[2].toChar().toString() + arrayToHash[3].toChar().toString()
         val hashIndex = when (arrayToHash[0]) {
             in 0..127 -> {
                 0
@@ -129,8 +116,6 @@ class IpCounter(private val filePath: String)
                 }
             }
         }
-
-//        hashSet[hashIndex]!!.add(arrayToHash[0]*1000000000L+arrayToHash[1]*1000000+arrayToHash[2]*1000+arrayToHash[3])
     }
 
     /**
@@ -160,14 +145,14 @@ class IpCounter(private val filePath: String)
     {
         var size = 0
         array1.forEach {
-            if (it == 1.toByte()) {
+            if (it == 1.toByte() || it == 10.toByte()) {
                 size++
             } else if (it == 11.toByte()) {
                 size += 2
             }
         }
         array2.forEach {
-            if (it == 1.toByte()) {
+            if (it == 1.toByte() || it == 10.toByte()) {
                 size++
             } else if (it == 11.toByte()) {
                 size += 2
